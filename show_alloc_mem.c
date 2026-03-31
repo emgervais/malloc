@@ -33,6 +33,9 @@ void show_alloc_mem() {
                 putstr(" : ");
                 putnbr(size - CHUNK_HEADER_SIZE);
                 putstr(" bytes\n");
+                if (g_arena.g_debug_mode) {
+                    hexdump_payload(start_addr, size - CHUNK_HEADER_SIZE);
+                }
                 
                 total_bytes += (size - CHUNK_HEADER_SIZE);
             }
@@ -61,7 +64,9 @@ void show_alloc_mem() {
                 putstr(" : ");
                 putnbr(size - CHUNK_HEADER_SIZE);
                 putstr(" bytes\n");
-                
+                if (g_arena.g_debug_mode) {
+                    hexdump_payload(start_addr, size - CHUNK_HEADER_SIZE);
+                }
                 total_bytes += (size - CHUNK_HEADER_SIZE);
             }
             current = (chunk *)((char *)current + size);
@@ -86,7 +91,9 @@ void show_alloc_mem() {
             putstr(" : ");
             putnbr(actual_size);
             putstr(" bytes\n");
-            
+            if (g_arena.g_debug_mode) {
+                hexdump_payload(start_addr, actual_size - CHUNK_HEADER_SIZE);
+            }
             total_bytes += actual_size;
             l_block = l_block->next;
         }

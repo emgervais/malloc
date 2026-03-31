@@ -7,7 +7,7 @@ zone *init_zone(size_t block_size, size_t blocks_nbr) {
     size_t zone_size = blocks_nbr * (block_size + sizeof(zone));
     size_t mmap_size = (zone_size % page_size != 0 ? zone_size / page_size + 1 : zone_size / page_size) * page_size;
     zone *zone_addr = mmap(NULL, mmap_size, PROT_READ|PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-    if (DEBUG) {
+    if (g_arena.g_debug_mode) {
         write(1, "New zone(page) of size ", 24);
         putnbr(mmap_size);
         write(1, "\n", 1);
@@ -26,20 +26,29 @@ void init_heap() {
     g_arena.tiny_max = 128;
     g_arena.small_max = 1024;
     g_arena.blocks_nbr = 100;
+    g_arena.g_debug_mode = 0;
     
     g_arena.large_blocks = NULL;
     g_arena.tiny_zones = NULL;
     g_arena.small_zones = NULL;
+    char *env_debug = getenv("MALLOC_DEBUG");
+    if (env_debug && env_debug[0] == '1') {
+        g_arena.g_debug_mode = 1;
+    }
 }
 void *large_alloc(size_t size) {
     size_t page_size = sysconf(_SC_PAGESIZE);
     size += sizeof(large_block);
     size_t mmap_size = (size + page_size - 1) & ~(page_size - 1);
     large_block *block = mmap(NULL, mmap_size, PROT_READ|PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-    if (DEBUG) {
-        printf("Large alloc at %p of size %ld requested size + header %ld\n", block, mmap_size, size);
+    if (g_arena.g_debug_mode) {
+        write(1, "Large alloc of size ", 21);
+        putnbr(mmap_size);
+        write(1, "\n", 1);
     }
-    if (block == (large_block *) -1) return NULL;
+    if (block == (large_block *) -1) {
+        return NULL;
+    }
     block->next = NULL;
     block->size = mmap_size | 0x2;
     large_block *temp = g_arena.large_blocks;
@@ -85,7 +94,7 @@ void *alloc(size_t size, zone *z) {
             current = current->fwd;
         }
         if (!current) {
-            if (DEBUG) {
+            if (g_arena.g_debug_mode) {
                 write(1, "No fitting chunk in bin\n", 25);
             }
             size_t chunk_size = (size + CHUNK_HEADER_SIZE + MEMORY_ALIGNMENT - 1) & ~(MEMORY_ALIGNMENT - 1);
@@ -101,7 +110,7 @@ void *alloc(size_t size, zone *z) {
                 
                 return new_chunk->data;
             }
-            if (DEBUG) {
+            if (g_arena.g_debug_mode) {
                 write(1, "New chunk couldnt fit in current zone\n", 39);
             }
         }
@@ -109,7 +118,7 @@ void *alloc(size_t size, zone *z) {
             break;
         temp = temp->next;
     }
-    if (DEBUG) {
+    if (g_arena.g_debug_mode) {
         write(1, "Couldnt find a good zone, allocating a new one\n", 48);
     } 
     temp->next = init_zone(z->block_size, g_arena.blocks_nbr);

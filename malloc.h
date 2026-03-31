@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stddef.h>
+#include <stdlib.h>
 
 #define MAP_ANONYMOUS 0x20
 #define MIN_LARGE_SIZE 1024
@@ -15,7 +16,6 @@
 #define CHUNK_HEADER_SIZE 2 * sizeof(size_t)
 #define MEMORY_ALIGNMENT 16
 #define BLOCK_NBR 100
-#define DEBUG 0
 
 typedef struct chunk {
   size_t prev_size;
@@ -45,6 +45,7 @@ typedef struct large_block {
 } large_block;
 
 typedef struct arena {
+    int g_debug_mode;
     zone *tiny_zones;
     zone *small_zones;
     large_block *large_blocks;
@@ -65,5 +66,7 @@ void show_alloc_mem();
 void *malloc(size_t size);
 void free(void *ptr);
 void *realloc(void *ptr, size_t size);
+void hexdump_payload(void *ptr, size_t size);
+void *calloc(size_t nmemb, size_t size);
 
 #endif

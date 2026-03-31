@@ -5,7 +5,7 @@ endif
 NAME = libft_malloc_$(HOSTTYPE).so
 SYMLINK = libft_malloc.so
 
-SRCS = main.c utils.c free.c realloc.c show_alloc_mem.c
+SRCS = malloc.c utils.c free.c realloc.c show_alloc_mem.c calloc.c
 OBJS = $(SRCS:.c=.o)
 
 CC = gcc
