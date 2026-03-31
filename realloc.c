@@ -43,6 +43,7 @@ void *realloc(void *ptr, size_t size) {
 
     int is_now_large = (size > MIN_LARGE_SIZE);
 
+    // if zone change, malloc -> copy -> free
     if ((was_tiny != is_now_tiny) || (was_small != is_now_small) || is_now_large) {
         return fresh_ralloc(ptr, size, user_size);
     }
@@ -50,7 +51,7 @@ void *realloc(void *ptr, size_t size) {
     zone *z = is_now_tiny ? g_arena.tiny_zones : g_arena.small_zones;
     size_t total_size = curr_size;
     chunk *scan_chunk = (chunk *)((char *)current + curr_size);
-    
+    // scan next chunks to see if free or top
     while (total_size < new_chunk_size) {
         if (scan_chunk == z->top) {
             size_t needed = new_chunk_size - total_size;

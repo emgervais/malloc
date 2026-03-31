@@ -12,8 +12,9 @@ zone *init_zone(size_t block_size, size_t blocks_nbr) {
         putnbr(mmap_size);
         write(1, "\n", 1);
     }
-    if (zone_addr == (zone *) -1) return NULL;
-    
+    if (zone_addr == (zone *) -1) {
+        return NULL;
+    }
     zone_addr->block_size = block_size;
     zone_addr->next = NULL;
     zone_addr->top = (chunk *)((char *)zone_addr + sizeof(zone));
@@ -25,10 +26,10 @@ void init_heap() {
     g_arena.tiny_max = 128;
     g_arena.small_max = 1024;
     g_arena.blocks_nbr = 100;
+    
     g_arena.large_blocks = NULL;
-
-    g_arena.tiny_zones = NULL; //init_zone(g_arena.tiny_max, g_arena.blocks_nbr);
-    g_arena.small_zones = NULL; //init_zone(g_arena.small_max, g_arena.blocks_nbr);
+    g_arena.tiny_zones = NULL;
+    g_arena.small_zones = NULL;
 }
 void *large_alloc(size_t size) {
     size_t page_size = sysconf(_SC_PAGESIZE);

@@ -32,12 +32,3 @@ void print_address(void *ptr) {
     putstr("0x");
     puthex((size_t)ptr);
 }
-
-int is_chunk_free(chunk *target, chunk *bin_list) {
-    chunk *curr = bin_list;
-    while (curr) {
-        if (curr == target) return 1;
-        curr = curr->fwd;
-    }
-    return 0;
-}

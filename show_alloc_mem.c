@@ -1,5 +1,14 @@
 #include "malloc.h"
 
+int is_chunk_free(chunk *target, chunk *bin_list) {
+    chunk *curr = bin_list;
+    while (curr) {
+        if (curr == target) return 1;
+        curr = curr->fwd;
+    }
+    return 0;
+}
+
 void show_alloc_mem() {
     size_t total_bytes = 0;
     
